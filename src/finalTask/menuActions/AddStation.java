@@ -26,12 +26,13 @@ public class AddStation implements MenuAction {
 						+ TerminalColors.RESET);
 		System.out.println("Enter the name of the new station:");
 		String stationName = scanner.nextLine();
+		if (stationName.equals("-1"))
+			return;
 
-		displayFreeStationManagers(freeStationManagers);
+		StationManager selectedManager = getManager(freeStationManagers, scanner);
+		if (selectedManager == null)
+			return;
 
-		int managerIndex = scanner.nextInt() - 1;
-		scanner.nextLine();
-		StationManager selectedManager = freeStationManagers.get(managerIndex);
 		Station newStation = new Station(stations.size(), stationName, selectedManager);
 
 		if (!stations.isEmpty()) {
@@ -57,14 +58,6 @@ public class AddStation implements MenuAction {
 		return freeStationManagers;
 	}
 
-	private void displayFreeStationManagers(Vector<StationManager> freeStationManagers) {
-		System.out.println("Choose a Station Manager:");
-		for (int i = 0; i < freeStationManagers.size(); i++) {
-			StationManager manager = freeStationManagers.get(i);
-			System.out.println("\t" + (i + 1) + ") " + manager.getName());
-		}
-	}
-
 	private Station chooseNorthernStation(Scanner scanner, Vector<Station> stations) {
 		Station choosenStation = null;
 		while (choosenStation == null) {
@@ -77,14 +70,35 @@ public class AddStation implements MenuAction {
 				}
 			}
 			try {
-			int northernStationIndex = scanner.nextInt() - 1;
-			scanner.nextLine();
-			if (northernStationIndex == -1)
-				return null;
-			choosenStation = stations.get(northernStationIndex);
-			}catch(Exception e) {}
+				int northernStationIndex = scanner.nextInt() - 1;
+				scanner.nextLine();
+				if (northernStationIndex == -1 || northernStationIndex == -2)
+					return null;
+				choosenStation = stations.get(northernStationIndex);
+			} catch (Exception e) {
+			}
 		}
 		return choosenStation;
+	}
+
+	private StationManager getManager(Vector<StationManager> managers, Scanner scanner) {
+		StationManager selectedManager = null;
+		while (selectedManager == null) {
+			System.out.println("Choose a Station Manager:");
+			for (int i = 0; i < managers.size(); i++) {
+				StationManager manager = managers.get(i);
+				System.out.println("\t" + (i + 1) + ") " + manager.getName());
+			}
+			try {
+				int managerIndex = scanner.nextInt() - 1;
+				if (managerIndex == -2)
+					return null;
+				selectedManager = managers.get(managerIndex);
+			} catch (Exception e) {
+
+			}
+		}
+		return selectedManager;
 	}
 
 }

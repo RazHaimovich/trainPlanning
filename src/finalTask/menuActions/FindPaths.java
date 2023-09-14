@@ -22,10 +22,18 @@ public class FindPaths implements MenuAction {
 		if (storge.getRoutes().isEmpty())
 			throw new Exception("There are no routes in the system!");
 		CalculationType calculationType = getCalculationType(scanner);
+		if (calculationType == null)
+			return;
 		LocalTime time = getTime(scanner, calculationType);
+		if (time == null)
+			return;
 		Station startStation = getStation(scanner, "Select starting station", storge.getStations());
+		if (startStation == null)
+			return;
 		List<Station> accessibleStations = StationUtils.getAccessibleStations(startStation);
 		Station endStation = getStation(scanner, "Select end station", accessibleStations);
+		if (endStation == null)
+			return;
 		FindPathThreadResults results = new FindPathThreadResults();
 		Thread thread = new Thread(
 				new FindPathThread(storge.getRoutes(), startStation, endStation, time, calculationType, results));
@@ -54,6 +62,8 @@ public class FindPaths implements MenuAction {
 				int typeInt = scanner.nextInt();
 
 				switch (typeInt) {
+				case -1:
+					return null;
 				case 1:
 					calculationType = CalculationType.DEPARTURE_TIME_BASED;
 					break;
@@ -79,7 +89,10 @@ public class FindPaths implements MenuAction {
 			System.out.println("Enter " + (type == CalculationType.ARRIVAL_TIME_BASED ? "arrival" : "departure")
 					+ " time (HH:mm format):");
 			try {
-				time = LocalTime.parse(scanner.nextLine());
+				String input = scanner.nextLine();
+				if (input.trim().equals("-1"))
+					return null;
+				time = LocalTime.parse(input);
 			} catch (DateTimeParseException e) {
 				System.out.println("Invalid time format. Try again.");
 			}
@@ -88,13 +101,23 @@ public class FindPaths implements MenuAction {
 	}
 
 	private Station getStation(Scanner scanner, String message, List<Station> stations) {
-		System.out.println(message + " (provide index):");
-		for (int i = 0; i < stations.size(); i++) {
-			System.out.println((i + 1) + ". " + stations.get(i).getName());
+		Station selectedStation = null;
+		while (selectedStation == null) {
+			System.out.println(message + " (provide index):");
+			for (int i = 0; i < stations.size(); i++) {
+				System.out.println((i + 1) + ". " + stations.get(i).getName());
+			}
+			try {
+				int stationIndex = scanner.nextInt() - 1;
+				if (stationIndex == -2)
+					return null;
+				scanner.nextLine();
+				selectedStation = stations.get(stationIndex);
+			} catch (Exception e) {
+
+			}
 		}
-		int stationIndex = scanner.nextInt() - 1;
-		scanner.nextLine();
-		return stations.get(stationIndex);
+		return selectedStation;
 	}
 
 }

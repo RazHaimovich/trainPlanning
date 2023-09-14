@@ -30,15 +30,23 @@ public class AddRoute implements MenuAction {
 
 		int routeId = routes.size() + 1;
 		LocalTime departure = getDepartureTime(scanner);
+		if(departure == null) return;
 
 		Train train = getEntity(scanner, "Select train", trains, routes, departure);
+		if(train == null) return;
 		Driver driver = getEntity(scanner, "Select driver", drivers, routes, departure);
+		if(driver == null) return;
+
 		TrainConductor trainConductor = getEntity(scanner, "Select train conductor", trainConductors, routes,
 				departure);
+		if(trainConductor == null) return;
 
 		Station startStation = getStation(scanner, "Select starting station", stations);
+		if(startStation == null) return;
+		
 		List<Station> accessibleStations = StationUtils.getAccessibleStations(startStation);
 		Station endStation = getStation(scanner, "Select end station", accessibleStations);
+		if(endStation == null) return;
 
 		routes.add(new Route(routeId, departure, train, driver, trainConductor, startStation, endStation));
 		System.out.println("Route added successfully!");
@@ -65,7 +73,10 @@ public class AddRoute implements MenuAction {
 		while (departure == null) {
 			System.out.println("Enter departure time (HH:mm format):");
 			try {
-				departure = LocalTime.parse(scanner.nextLine());
+				String input = scanner.nextLine();
+				if (input.trim().equals("-1"))
+					return null;
+				departure = LocalTime.parse(input);
 			} catch (DateTimeParseException e) {
 				System.out.println("Invalid time format. Try again.");
 			}
@@ -90,6 +101,7 @@ public class AddRoute implements MenuAction {
 				exitWithMessage("There are no available entities for: " + message);
 
 			int entityIndex = scanner.nextInt() - 1;
+			if(entityIndex == -2) return null;
 			if (allowedIndexes.contains(entityIndex))
 				entity = entities.get(entityIndex);
 			scanner.nextLine(); // Clear newline
@@ -98,15 +110,23 @@ public class AddRoute implements MenuAction {
 	}
 
 	private Station getStation(Scanner scanner, String message, List<Station> stations) {
-		System.out.println(message + " (provide index):");
-		for (int i = 0; i < stations.size(); i++) {
-			if (stations.get(i).getNorthernStation() == null && stations.get(i).getSouthernStation() == null)
-				continue;
-			System.out.println((i + 1) + ". " + stations.get(i).getName());
+		Station selectedStation = null;
+		while (selectedStation == null) {
+			System.out.println(message + " (provide index):");
+			for (int i = 0; i < stations.size(); i++) {
+				System.out.println((i + 1) + ". " + stations.get(i).getName());
+			}
+			try {
+				int stationIndex = scanner.nextInt() - 1;
+				if (stationIndex == -2)
+					return null;
+				scanner.nextLine();
+				selectedStation = stations.get(stationIndex);
+			} catch (Exception e) {
+
+			}
 		}
-		int stationIndex = scanner.nextInt() - 1;
-		scanner.nextLine(); // Clear newline
-		return stations.get(stationIndex);
+		return selectedStation;
 	}
 
 	private void exitWithMessage(String message) throws Exception {

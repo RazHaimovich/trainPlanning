@@ -16,8 +16,8 @@ public class AddTrain implements MenuAction {
 
 		while (finalTrainNumber == -1) {
 			System.out.println("Choose Train Number(Id):");
-			int trainNumber = scanner.nextInt() - 1;
-
+			int trainNumber = scanner.nextInt();
+			if(trainNumber == -1) return;
 			if (!trainExists(trainNumber, trains)) {
 				finalTrainNumber = trainNumber;
 			}

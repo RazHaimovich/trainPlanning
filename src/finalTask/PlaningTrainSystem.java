@@ -5,6 +5,7 @@ import java.util.Scanner;
 
 import finalTask.interfaces.MenuAction;
 import finalTask.menuActions.*;
+import finalTask.utils.TerminalColors;
 
 public class PlaningTrainSystem {
 
@@ -26,7 +27,7 @@ public class PlaningTrainSystem {
 			System.out.println("\t4) Add a train");
 			System.out.println("\t5) Add a route");
 			System.out.println("\t6) Find paths");
-			
+
 			System.out.println("\t0) Exit");
 			int choosenOption = scanner.nextInt();
 			scanner.nextLine();
@@ -49,6 +50,9 @@ public class PlaningTrainSystem {
 		MenuAction selectedAction = actions.get(action);
 		if (selectedAction != null) {
 			try {
+				if (action > 2 && action < 7)
+					System.out.println(TerminalColors.GREEN
+							+ "You can go back to the main menu at any step by typing -1" + TerminalColors.RESET);
 				selectedAction.action(scanner, storge);
 			} catch (Exception e) {
 				System.out.println(e.getMessage());
